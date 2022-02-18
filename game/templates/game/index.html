@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fruit Crush</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'game/style.css' %}">
+</head>
+<body style="background-image: url('{% static 'game/images/background.jpg' %}')">
+<header>
+    <h1>Fruit Punch</h1>
+    <button type="button" id="pause"><span>Pause</span></button>
+</header>
+<div class="game__container">
+    <div id="game-grid" class="game-grid"></div>
+    <div class="metadata">
+    <div class="level__container">
+        <p class="level__display">Level: <span id="level">0</span></p>
+    </div>
+    <div class="target__container">
+        <p class="target__display">Target: <span id="target">0</span></p>
+    </div>
+    <div class="moves__container">
+        <p class="moves__display">Moves: <span id="moves">0</span></p>
+    </div>
+    <div class="score__container">
+        <p class="score__display">Score: <span id="score">0</span></p>
+    </div>
+    <div class="progress__container">
+        <p class="progress__display">Progress:</p>
+        <div class="progress-bar__container">
+            <span id="progress" class="progress-text">0%</span>
+            <span id="progressBar" class="progress-bar"></span>
+            <span class="progress-bkgd"></span>
+        </div>
+    </div>
+</div>
+</div>
+<script src="{% static 'game/script.js' %}"></script>
+</body>
+</html>

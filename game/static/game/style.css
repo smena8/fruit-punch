@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+
+:root {
+
+}
+
+*, *:after, *:before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+header {
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	padding-top: 3em;
+	width: 100%;
+}
+
+h1 {
+	font-size: 2rem;
+	color: #f9dd05;
+	letter-spacing: 10px;
+	-webkit-text-stroke: .05em #cb0108;
+	font-family: 'Shrikhand', cursive;
+    font-weight: 400;
+}
+
+button, .btn {
+	outline: 0;
+	background-color: #7cb834;
+	background-image: linear-gradient(-180deg, #7FC232 0%, #4D7F17 100%);
+	border: none;
+	border-radius: 25px;
+	box-shadow: 0 1rem 1.25rem 0 rgb(76, 157, 192), 0 -0.25rem 1.5rem rgb(62, 118, 22) inset, 0 0.75rem 0.5rem rgba(255,255,255, 0.4) inset, 0 0.25rem 0.5rem 0 rgb(23, 61, 6) inset;
+	color: #eaeaea;
+	cursor: pointer;
+	font-size: 1.25rem;
+	width: 7em;
+	height: 25px;
+	padding: 1em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 1em auto;
+}
+
+button > span {
+    filter: drop-shadow(0 2px 2px hsl(97.7, 69.6%, 22%));
+}
+
+.play-btn {
+	background-color: #ec1d27;
+	background-image: linear-gradient(-180deg, #ff020e 0%, #A20008 100%);
+	border: none;
+	border-radius: 25px;
+	box-shadow: 0 1rem 1.25rem 0 rgb(76, 157, 192), 0 -0.25rem 1.5rem rgb(190, 11, 2) inset, 0 0.75rem 0.5rem rgba(255,255,255, 0.4) inset, 0 0.25rem 0.5rem 0 rgb(168, 24, 11) inset;
+}
+
+.game__container {
+	height: 100%;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.game-grid {
+    background-color: rgb(94, 191, 232, .5);
+    box-shadow: inset 0px 0px 15px 0px #076a93;
+    border-radius: 10px;
+    height: 80%;
+    margin: 1em;
+    min-height: 55vh;
+    min-width: 300px;
+    max-width: 700px;
+    width: 90%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    position: relative;
+    transition: 1000ms;
+}
+
+.fruit__container {
+    cursor: pointer;
+    background-origin: border-box;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 80% 80%;
+    filter: drop-shadow(2px 2px 2px #076a93);
+    transform: translate(0,0) scale(1);
+    z-index: 1;
+}
+
+.fruit__container:hover, .fruit__container:focus, .fruit__container:active {
+    background-color: rgba(37, 140, 183, 0.25);
+    filter: brightness(1.25) drop-shadow(2px 2px 2px #076a93);
+}
+
+.above {
+    transition: transform 1000ms linear;
+    transform: translate(0, -1300%) scale(1);
+}
+
+.popped {
+    transition: transform 500ms linear;
+    transform: translate(0px) scale(0);
+}
+
+.fall {
+    transform: translate(0, -75px) scale(1);
+}
+
+.flash {
+	/* border: 2px solid rgba(255, 255, 255, .75); */
+	transform: translateY(-5px);
+	filter: brightness(1.25) drop-shadow(2px 2px 2px #076a93);
+}
+
+.metadata {
+    margin: 1em;
+    padding: 1em;
+    text-align: center;
+    background-color: rgba(93, 210, 233, .5);
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 15px 0px #076a93;
+    font-family: 'Shrikhand', cursive;
+    font-weight: 400;
+    font-size: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    flex-direction: row;
+}
+
+.metadata > * {
+	margin: 0 1em;
+}
+
+.metadata > div > p > span {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	min-height: 1.5rem;
+	width: 100%;
+	background-color: white;
+	border-radius: 5px;
+}
+
+.progress__display {
+    min-width: 200px;
+}
+
+.progress-bar__container {
+    min-height: 1.5rem;
+    position: relative;
+    padding: .5em;
+}
+
+.progress-bar, .progress-bkgd, .progress-text {
+	min-height: 1.5rem;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    z-index: 2;
+}
+
+.progress-bar {
+	background: #076a93;
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	width: 0;
+	z-index: 1;
+}
+
+.progress-bkgd {
+	background: white;
+	border-radius: 5px;
+	width: 100%;
+	z-index: 0;
+}
+
+.progress-bar.full {
+    border-radius: 5px;
+}
+
+
+@media screen and (min-width: 900px) {
+
+    body {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    h1 {
+	    font-size: 4rem;
+	}
+
+    .game__container {
+        justify-content: space-evenly;
+        flex-direction: row-reverse;
+    }
+
+    .game-grid {
+        height: 90%;
+        min-height: 55vh;
+    }
+
+    .metadata {
+        flex-direction: column;
+    }
+}
+
