@@ -9,18 +9,33 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const gridItems = gridCols*gridRows;
     gameGrid.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
     gameGrid.style.gridTemplateRows = `repeat(${gridRows}, 1fr)`;
-    const scoreDisplay = document.getElementById('score')
-    const targetDisplay = document.getElementById('target')
-    const levelDisplay = document.getElementById('level')
-    const movesDisplay = document.getElementById('moves')
-    const progressDisplay = document.getElementById('progress')
-    const progressBar = document.getElementById('progressBar')
-    let SPEED = 2
-    let SCORE = 0
-    let TARGET = 2000
-    let MOVES_START = 50
-    let MOVES = 50
-    let LEVEL = 1
+    // display numbers
+    const scoreDisplay = document.getElementById('score');
+    const targetDisplay = document.getElementById('target');
+    const levelDisplay = document.getElementById('level');
+    const movesDisplay = document.getElementById('moves');
+    const progressContainer = document.getElementById('progressContainer')
+    const progressDisplay = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
+    const progressBackground = document.getElementById('progressBackground');
+    // modal
+    const modalContainer = document.getElementById('modalContainer');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalReason = document.getElementById('modalReason');
+    const modalButton1 = document.getElementById('modalButton1');
+    const modalButton2 = document.getElementById('modalButton2');
+
+    modalButton1.addEventListener('click', buttonEvents)
+    modalButton2.addEventListener('click', buttonEvents)
+    //
+    let TRANSITION_SPEED = 350;
+    let SPEED = 2;
+    let SCORE = 0;
+    let POINTS_PER = 20;
+    let TARGET = 1000;
+    let MOVES_START = 40;
+    let MOVES = 40;
+    let LEVEL = 1;
 
     const appName = 'game/';
     const fruitImageFolder = 'images/fruits_svg/';
@@ -34,7 +49,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         constructor(name, id) {
             this.name = name;
             this.image = `/static/${appName}${fruitImageFolder}${name}${fruitImageType}`;
-            this.points = 40;
+            this.points = 50;
         }
     }
 
@@ -48,10 +63,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let fruitReplacedId;
 
     let paused = false;
-    const pauseButton = document.querySelector('#pause')
-    const pauseText = pauseButton.querySelector('span')
-    pauseButton.addEventListener('click', pauseGame)
-
+    const pauseButton = document.querySelector('#pause');
+    pauseButton.addEventListener('click', pauseGame);
 
     let lastRenderTime;
     let matchedIndexArray = [];
@@ -59,44 +72,49 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let matchHint = [];
     let fallingFruits = [];
     let flashing;
-    startGame()
-    setTimeout (() => { window.requestAnimationFrame(main); }, 50 * ( gridItems + 1 ))
+    startGame();
+    setTimeout (() => { window.requestAnimationFrame(main); }, 0)
 
     function main(currentTime) {
         window.requestAnimationFrame(main);
         const secondsSinceLastRender = (currentTime - lastRenderTime) / 1000;
-        if ( paused || secondsSinceLastRender < 1 ) {
-            console.log('Paused...');
+        if ( paused || secondsSinceLastRender < 1.5 ) {
             return
         }
         lastRenderTime = currentTime;
         // add some functions here
         matchedIndexArray = [];
-        try {
-            checkRowOfThree();
-            checkColOfThree();
-            if (matchedIndexArray.length > 0) {
-                console.log('Matched index array is greater than 0...')
-                console.log(matchedIndexArray)
-                // reduce array so numbers are not repeating
-                matchedIndexArray = [...new Set(matchedIndexArray)];
-                moveElementsDown();
-                editFruitArray();
-            }
-
-        } catch (err) {
-            console.log(err)
+        checkRowOfThree();
+        checkColOfThree();
+        if (matchedIndexArray.length > 0) {
+            // reduce array so numbers are not repeating
+            matchedIndexArray = [...new Set(matchedIndexArray)];
+            // render elements
+            requestAnimationFrame(() => {
+                // slowly make fruit disappear
+                destroyFruits();
+                // move elements down
+                arrangeColumns();
+            });
         }
         if (matchedIndexArray.length === 0 && matchHint.length === 0) {
             matchHint = searchPotentialMatches();
             flashing = setInterval(flashHint, 1000);
             // if matchHint still zero then start new array and refresh the elements
             if (matchHint.length === 0) {
-                alert('No more moves, shuffling fruits...')
-                gameGrid.innerHTML = '';
-                shuffleFruitArray();
-                replaceFruitElements();
-                clearHint();
+                updateModal('Shuffle Fruits', 'No more moves, shuffling fruits...', 'Shuffle');
+                setTimeout(() => {
+                    gameGrid.innerHTML = '';
+                    shuffleFruitArray();
+                    replaceFruitElements();
+                    clearHint();
+                    setTimeout(() => {
+                        modalContainer.style.display = 'none';
+                        gameGrid.classList.remove('disabled');
+                    }, 1000)
+
+                }, 0)
+
             }
         }
         displayLevel();
@@ -110,12 +128,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } else {
             endLevel();
         }
+        console.log('end loop')
 
     }
 
     // functions ----------------------------------------------------------------------------------------------------
 
     function startGame() {
+        modalContainer.style.display = 'none';
+        gameGrid.classList.remove('disabled');
         createFruitArray();
         let fruitRow = gridRows;
         let fruitCol = gridCols;
@@ -166,7 +187,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         elementContainer.setAttribute('draggable', 'true');
         elementContainer.id = number;
         elementContainer.setAttribute('data-fruit', `${fruitObj.name}`);
-        elementContainer.style.backgroundImage = `url('${fruitObj.image}')`;
         elementContainer.style.backgroundImage = `url('${fruitObj.image}')`;
         dragListeners(elementContainer);
         gameGrid.prepend(elementContainer);
@@ -228,11 +248,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             fruitArray[fruitReplacedId] = fruitDragged
             fruitArray[fruitDraggedId] = fruitReplaced
             if (isMatch(fruitDraggedId) || isMatch(fruitReplacedId)) {
+
                     switchTwoElements(fruitDraggedId, fruitReplacedId)
-//                    event.target.style.backgroundImage = `url('${fruitArray[fruitReplacedId].image}')`;
-//                    event.target.dataset.fruit = `${fruitArray[fruitReplacedId].name}`;
-//                    document.getElementById(fruitDraggedId).style.backgroundImage = `url('${fruitArray[fruitDraggedId].image}')`;
-//                    document.getElementById(fruitDraggedId).dataset.fruit = `${fruitArray[fruitDraggedId].name}`;
                     MOVES -= 1;
                     clearHint();
             } else {
@@ -242,23 +259,41 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    function switchTwoElements(id1, id2) {
-        if (id1 - 1 === id2) {
-            document.getElementById(id2).style.transform = 'translate(-100%, 0)' // left
-            document.getElementById(id1).style.transform = 'translate(100%, 0)' // right
+    function switchTwoElements(fruitDraggedId, fruitReplacedId) {
+        let fruitReplaceElement = document.getElementById(fruitReplacedId)
+        let fruitDraggedElement = document.getElementById(fruitDraggedId)
+        fruitReplaceElement.classList.add('switch')
+        fruitDraggedElement.classList.add('switch')
+        if (fruitDraggedId - 1 === fruitReplacedId) {
+            fruitReplaceElement.classList.add('left') // left
+            fruitDraggedElement.classList.add('right') // right
         }
-        if (id1 + 1 === id2) {
-            document.getElementById(id1).style.transform = 'translate(-100%, 0)' // left
-            document.getElementById(id2).style.transform = 'translate(100%, 0)' // right
+        if (fruitDraggedId + 1 === fruitReplacedId) {
+            fruitDraggedElement.classList.add('left') // left
+            fruitReplaceElement.classList.add('right') // right
         }
-        if (id1 - gridCols === id2) {
-            document.getElementById(id1).style.transform = 'translate(0, 100%)' // down
-            document.getElementById(id2).style.transform = 'translate(0, -100%)' // up
+        if (fruitDraggedId - gridCols === fruitReplacedId) {
+            fruitDraggedElement.classList.add('down') // down
+            fruitReplaceElement.classList.add('up') // up
         }
-        if (id1 + gridCols === id2) {
-            document.getElementById(id2).style.transform = 'translate(0, 100%)' // down
-            document.getElementById(id1).style.transform = 'translate(0, -100%)' // up
+        if (fruitDraggedId + gridCols === fruitReplacedId) {
+            fruitReplaceElement.classList.add('down') // down
+            fruitDraggedElement.classList.add('up')// up
         }
+        fruitReplaceElement.id = fruitDraggedId;
+        fruitDraggedElement.id = fruitReplacedId;
+            //potential setTimeout
+
+        switchElementRows(fruitReplaceElement, fruitDraggedElement)
+    }
+
+    function switchElementRows(fruitReplaceElement, fruitDraggedElement) {
+            let replaceElementGridArea = fruitReplaceElement.style.gridArea
+            let draggedElementGridArea = fruitDraggedElement.style.gridArea
+            fruitReplaceElement.style.gridArea = draggedElementGridArea
+            fruitDraggedElement.style.gridArea = replaceElementGridArea
+            fruitReplaceElement.classList.remove('switch', 'up', 'down', 'left', 'right')
+            fruitDraggedElement.classList.remove('switch', 'up', 'down', 'left', 'right')
     }
 
     function flashHint() {
@@ -447,112 +482,81 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    function editFruitArray() {
-//        checkRowOfThree();
-//        checkColOfThree();
-        // reduce array so numbers are not repeating
-//        matchedIndexArray = [...new Set(matchedIndexArray)];
-        // go through each index
-        fallingFruits = [];
-        if (matchedIndexArray.length > 0) {
-            matchedIndexArray.reverse().forEach(id => {
-                        console.log('-------------Editing fruit array...')
-                        fruitArray[id] = randomFruit();
-                        let index = id
-                        let indexAbove = index + gridCols
-                        let element = document.getElementById(index)
-                        // "pop" element
-                        element.classList.add('popped')
-                        SCORE += 40;
-                        // move item to the end of "column"
-                        while ( indexAbove < gridItems ) {
-                            let currentFruit = fruitArray[index]
-                            let aboveFruit = fruitArray[indexAbove]
-                            // switch fruits
-                            fruitArray[index] = aboveFruit
-                            fruitArray[indexAbove] = currentFruit
-                            // switch elements
-//                            let belowElement = document.getElementById(index)
-//                            let aboveElement = document.getElementById(indexAbove)
-//                            let belowImg = belowElement.style.backgroundImage
-//                            let aboveImg = aboveElement.style.backgroundImage
-//                            belowElement.style.backgroundImage = aboveImg
-//                            aboveElement.style.backgroundImage = belowImg
-                            // next row
-                            index = indexAbove
-                            indexAbove = index + gridCols
-                        }
-                        let fallingFruit = index
-                        while (fallingFruits.includes(fallingFruit)) {
-                            fallingFruit -= gridCols
-                        }
-                        fallingFruits.push(fallingFruit)
+    function destroyFruits() {
+        gameGrid.classList.add('disabled');
+        console.log('none')
+        matchedIndexArray.forEach(index => {
+            SCORE += POINTS_PER
+            let matchedElement = document.getElementById(index)
+            matchedElement.setAttribute('data-status', 'destroy')
+            matchedElement.style.transition = `transform ${TRANSITION_SPEED/2}ms linear`;
+            matchedElement.style.transform = 'translate(0, 0) scale(0)';
+            console.log('fruits disappeared...')
+        })
+
+    }
+
+    function arrangeColumns() {
+        let destroyedElems = document.querySelectorAll('[data-status="destroy"]')
+        setTimeout(() => {
+            destroyedElems.forEach(destroyedElem => {
+                let elementId = parseInt(destroyedElem.id);
+                // bring above items down, IF there are any above elements
+                // note last element in column
+                // render elements
+                let lastElementId = moveElementDown(elementId);
+                // change top element in column and corresponding fruit array
+
             })
-            // move elements down
-
-        }
+            gameGrid.classList.remove('disabled');
+            console.log('unset')
+        }, TRANSITION_SPEED)
 
     }
 
-    function createColumnsArray() {
-        let firstArray = [];
-        for (i=0; i < gridCols; i++) {
-            let secondArray = [];
-            let index = i;
-            while (index < gridItems) {
-                secondArray.push(index);
-                index += gridCols
-            }
-            firstArray.push(secondArray)
-        }
-        return firstArray
+    function changeFruitElement(lastElementId) {
+        let lastElementInCol = document.getElementById(lastElementId);
+        let newFruitObj = randomFruit();
+        fruitArray[lastElementId] = newFruitObj;
+        lastElementInCol.dataset.fruit = newFruitObj.name;
+        lastElementInCol.style.backgroundImage = `url('${newFruitObj.image}')`;
+        lastElementInCol.style.transition = `transform 0ms linear`;
+        lastElementInCol.style.transform = 'translate(0, -100vh) scale(1)';
+        setTimeout(() => {
+            lastElementInCol.style.transition = `transform ${TRANSITION_SPEED}ms linear`;
+            lastElementInCol.style.transform = 'translate(0, 0) scale(1)';
+            lastElementInCol.removeAttribute('data-status');
+        }, TRANSITION_SPEED)
     }
 
-    function moveElementsDown() {
-        console.log('-------------Moving elements down...')
-        for (i=gridItems-1; i > 0; i--) {
-            if (matchedIndexArray.includes(i)) {
-                let element = document.getElementById(i)
-                // destroy element
-                element.classList.add('popped')
-                // move above elements down
-                let aboveElementId = i + gridCols
-                while (aboveElementId < gridItems) {
-                    let aboveElement = document.getElementById(aboveElementId)
-                    if (!aboveElement.classList.contains('popped')) {
-                        aboveElement.style.transform = 'translate(0, 100%)'
-                        aboveElement.id = aboveElementId - gridCols
-                        setTimeout(() => {
-                            let currentRow = parseInt(aboveElement.style.gridRow)
-                            let belowRow = currentRow + 1
-                            aboveElement.style.transform = ''
-                            aboveElement.style.gridRow = belowRow
-                        }, 500)
-                    }
-                    aboveElementId += gridCols
-                }
-            }
-
-
-//            fallingFruits.forEach(index => {
-//                document.getElementById(index).dataset.fruit = fruitArray[index].name
-//                document.getElementById(index).style.backgroundImage = `url("/static/game/images/fruits_svg/${fruitArray[index].name}.svg")`
-////                setTimeout (() => { document.getElementById(index).classList.add('above') }, 0 )
-////                setTimeout (() => { document.getElementById(index).classList.remove('above') }, 500)
-//            })
-        }
+    function moveElementDown(id) {
+        let lastElementId = id;
+        changeFruitElement(lastElementId);
+        for (let aboveId=id+gridCols; aboveId < gridItems ; aboveId+=gridCols) {
+            lastElementId = aboveId;
+            let belowId = aboveId-gridCols;
+            // render switch of elements
+            switchTwoElements(aboveId, belowId);
+            // exchange in fruit array
+            let movedFruit = fruitArray[aboveId];
+            let destroyedFruit = fruitArray[belowId];
+            fruitArray[aboveId] = destroyedFruit;
+            fruitArray[belowId] = movedFruit;
+      }
+      return lastElementId
     }
+
 
     function updateProgressBar() {
         let PERCENT = Math.round((SCORE / TARGET) * 100)
         if (PERCENT > 0 && PERCENT < 100) {
-            progressBar.style.width = `${PERCENT}%`
-            progressDisplay.textContent = `${PERCENT}%`
-            progressBar.classList.remove('full')
+            progressDisplay.textContent = `${PERCENT}%`;
+            progressContainer.style.setProperty("--progress-percent", `${PERCENT}%`);
+            progressBackground.classList.remove('full');
         } else if (PERCENT >= 100) {
-            progressBar.style.width = '100%'
-            progressDisplay.textContent = '100%'
-            progressBar.classList.add('full')
+            progressDisplay.textContent = `100%`;
+            progressContainer.style.setProperty("--progress-percent", `100%`);
+            progressBackground.classList.remove('full');
         }
     }
 
@@ -576,23 +580,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
         event.preventDefault();
         paused = !paused
         if (paused) {
-            pauseText.textContent = 'Play';
+            pauseButton.textContent = 'Play';
             pauseButton.classList.add('play-btn');
+            gameGrid.classList.add('disabled');
         } else {
-            pauseText.textContent = 'Pause';
+            pauseButton.textContent = 'Pause';
             pauseButton.classList.remove('play-btn')
+            gameGrid.classList.remove('disabled');
         }
 
     }
 
     function endLevel() {
         if (TARGET <= SCORE) {
-            paused = true
-            if (confirm('Moving to next level') === true) {
-                nextLevel()
-            } else {
-                close()
-            }
+            paused = true;
+            updateModal('Level Up', 'Moving to next level', 'Next Level');
         }
     }
 
@@ -602,23 +604,57 @@ document.addEventListener('DOMContentLoaded', (event) => {
         MOVES = MOVES_START
         SCORE = 0
         TARGET += 500
+        clearHint();
         gameGrid.innerHTML = '';
-        progressBar.style.width = 0
-        progressDisplay.textContent = '0%'
+        progressDisplay.textContent = `0%`;
+        progressContainer.style.setProperty("--progress-percent", `0%`);
+        progressBackground.classList.add('full');
         startGame();
         paused = false
     }
 
     function endGame() {
         if (MOVES === 0 && SCORE < TARGET) {
-            alert('you lose')
+            updateModal('Game Over', 'You ran out of moves.', 'Play Again');
             return true
         }
         if (LEVEL >= fruitStringArray.length && SCORE >= TARGET) {
-            alert('congrats, you\'ve won')
+            updateModal('Congrats', 'You completed all the levels to win the game!', 'Play Again');
             return true
         }
         return false
+    }
+
+    function updateModal(titleStr, reasonStr, button1Str) {
+        modalContainer.style.display = 'block';
+        gameGrid.classList.add('disabled');
+        modalTitle.innerText = titleStr;
+        modalReason.innerText = reasonStr;
+        modalButton1.innerText = button1Str;
+        modalButton2.innerText = 'Quit';
+        if ( modalTitle.innerText === ('Shuffle Fruits' || 'Shuffle fruits')) {
+            modalButton1.style.display = 'none';
+            modalButton2.style.display = 'none';
+        } else {
+            modalButton1.style.display = 'inherit';
+            modalButton2.style.display = 'inherit';
+        }
+    }
+
+    function buttonEvents(e) {
+        switch (e.target.innerText) {
+            case 'Play Again':
+                location.reload();
+                break;
+            case 'Next Level':
+                nextLevel();
+                break;
+            case 'Quit':
+                close();
+                break;
+            default:
+                break;
+        }
     }
 
 });
