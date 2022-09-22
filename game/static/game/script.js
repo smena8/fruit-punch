@@ -48,9 +48,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     class Fruit {
         constructor(name, id) {
             this.name = name;
-            this.image = `/static/${appName}${fruitImageFolder}${name}${fruitImageType}`;
+            this.image = `/static/${appName}${fruitImageFolder}${this.name[0].toUpperCase() + this.name.substring(1)}${fruitImageType}`;
             this.points = 50;
         }
+
     }
 
     let fruitRow = gridRows;
