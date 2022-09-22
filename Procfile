@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath fruitcrush fruitcrush.wsgi --log-file -
+web gunicorn fruitcrush.wsgi:application --log-file -
