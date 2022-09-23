@@ -3,7 +3,7 @@
 ![image](https://user-images.githubusercontent.com/63067781/192017692-39cc9edf-cc6f-4066-b695-434ead2edaca.png)
 <br />
 <br />
-Fruit Punch is a game built with Vanilla Javascript. Similar to Candy Crush, to get points a player must match atleast 3 items in a row or column. When the items are matched, they disappear to make room for new items. The player can only switch two items when one is above, below, left, or right of another item. Diagonal moves are not allowed. When a player accumalates the target amount of points they progress to the next level. Each time the game progresses to the next level the amount of moves available decreases, the points target increases, and a different type of item is added to the group of items in order to increase the matching difficulty. The player loses the game if the run out of moves before a level is complete. The player wins win all levels of the game are completed. 
+Fruit Punch is a game built with Vanilla Javascript. Similar to Candy Crush, to get points a player must match atleast 3 items in a row or column. When the items are matched, they disappear to make room for new items. The player can only switch two items when one is above, below, left, or right of another item. Diagonal moves are not allowed. When a player accumalates the target amount of points they progress to the next level. Each time the game progresses to the next level the amount of moves available decreases, the points target increases, and a different type of item is added to the group of items in order to increase the matching difficulty. The player loses the game if they run out of moves before a level is complete. The player wins if all levels of the game are completed. 
 
 ## Tech Stack
 
