@@ -20,6 +20,16 @@ The most challenging part of this project became understanding the event loop an
 <br />
 [Video - Jake Archibald: In The Loop](https://youtu.be/cCOL7MC4Pl0)
 
+## :notebook: Things To Work On
+
+* [x] Conquer Event Loop 
+* [ ] Clean Up Code
+* [ ] Constructor for Modal
+* [ ] Change setTimeout to Promises
+* [ ] Test out animation for drag and drop element switching
+* [ ] Add button that solves game for you
+* [ ] 
+
 ## Credits
 
 [Fruit Images - Image by titusurya on Freepik](https://www.freepik.com/free-vector/coloured-fruit-icons_942941.htm#page=2&position=39&from_view=undefined)<br />
