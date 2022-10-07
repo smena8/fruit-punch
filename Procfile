@@ -1,1 +1,0 @@
-web gunicorn fruitcrush.wsgi:application --log-file -
