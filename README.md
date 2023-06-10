@@ -13,7 +13,7 @@ HTML<br />
 
 # Challenges
 
-The most challenging part of this project became understanding the event loop and how it relates to rendering. I wanted there to be fluid animation so the player/user could understand what was happening in the game, instead of the items just magically appearing from nowhere or instantly becoming something else. As someone only familiar with the basics of JavaScript at the beginning of this project, it proved to be more of a challenge than initially expected. Understanding where the setTimeout() method, Promise objects, and rendering fit in the event loop helped me figure out why it looked like my animations weren't working. It wasn't a bug! It was just the event loop doing what it was supposed to do.
+The most challenging part of this project became understanding the event loop and how it relates to rendering. I wanted there to be fluid animation so the player/user could understand what was happening in the game, instead of the items just magically appearing from nowhere or instantly becoming something else. As someone only familiar with the basics of JavaScript at the beginning of this project, it proved to be more of a challenge than initially expected. Understanding where the setTimeout() method, Promise objects, and rendering fit in the event loop helped me figure out why it looked like my animations weren't working. It wasn't a bug! It was just the event loop doing what it was designed to do.
 <br />
 <br />
 ![image](https://user-images.githubusercontent.com/63067781/192014137-c48240d2-442b-47a2-80a7-bce31342c2a2.png)
